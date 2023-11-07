@@ -1,0 +1,27 @@
+@import "variables";
+
+.toolbar {
+  position: absolute;
+  top: 0;
+  height: $toolbar-height;
+  background: white;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #000;
+
+  &__btn {
+    
+  }
+}
+
+.settingbar {
+  position: absolute;
+  top: $toolbar-height;
+  height: $toolbar-height;
+  background: white;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #000;
+}

@@ -1,0 +1,13 @@
+@import "variables";
+
+.canvas-wrap {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  canvas {
+    border: 1px dotted grey;
+    background: white;
+  }
+}
