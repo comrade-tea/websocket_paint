@@ -10,12 +10,13 @@ app.ws("/", (ws, req) => {
     // ws.send("hello from socket")
     ws.on("message", (msg) => {
         msg = JSON.parse(msg)
+        console.log("----", msg.username)
 
         switch (msg.method) {
             case "connection":
                 connectionHandler(ws, msg)
                 break;
-            case "message":
+            case "draw":
                 break;
         }
     })
@@ -35,7 +36,6 @@ const BroadcastConnection = (ws, msg) => {
             client.send(`user ${msg.username} was connected, id is: ${msg.id}`)
         }
     })
-
 }
 
 // приложение слушает портуху, если запустилось - колбэк

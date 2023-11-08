@@ -5,7 +5,6 @@ import {Toolbar} from "./components/Toolbar.jsx";
 import {Canvas} from "./components/Canvas.jsx";
 
 const App = () => {
-
     return (
         <div className="app">
             <SettingBar/>

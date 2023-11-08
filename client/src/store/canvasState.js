@@ -4,15 +4,19 @@ class CanvasState {
     canvas = null; // keep canvas ref in object, for having access from any part of app
     undoList = [] // all actions
     redoList = [] // all canceled actions
+    username = ""
 
     constructor() {
         makeAutoObservable(this)
     }
 
+    setUsername(username) {
+        this.username = username
+    }
     setCanvas(canvas) {
         this.canvas = canvas
     }
-
+    
     pushToUndo(data) {
         this.undoList.push(data)
     }
@@ -23,12 +27,12 @@ class CanvasState {
 
     undo() {
         const ctx = this.canvas.getContext("2d")
-        
+
         if (this.undoList.length > 0) {
             const dataUrl = this.undoList.pop()
-            
+
             this.redoList.push(this.canvas.toDataURL()) /* put removed state to redoList */
-            
+
             const img = new Image()
             img.src = dataUrl
             img.onload = () => {
@@ -39,15 +43,15 @@ class CanvasState {
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         }
     }
-
+    
     redo() {
         const ctx = this.canvas.getContext("2d")
-        
+
         if (this.redoList.length > 0) {
             const dataUrl = this.redoList.pop()
             
             this.undoList.push(this.canvas.toDataURL()) /* put removed state to undoList :D */
-            
+
             const img = new Image()
             img.src = dataUrl
             img.onload = () => {
