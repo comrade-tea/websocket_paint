@@ -2,6 +2,8 @@ import {makeAutoObservable} from "mobx";
 
 class CanvasState {
     canvas = null; // keep canvas ref in object, for having access from any part of app
+    socket = null
+    sessionId = null
     undoList = [] // all actions
     redoList = [] // all canceled actions
     username = ""
@@ -10,8 +12,15 @@ class CanvasState {
         makeAutoObservable(this)
     }
 
+    setSessionId(sessionid) {
+        this.sessionId = sessionid
+    }
+    
     setUsername(username) {
         this.username = username
+    }
+    setSocket(socket) {
+        this.socket = socket
     }
     setCanvas(canvas) {
         this.canvas = canvas

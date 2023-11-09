@@ -1,8 +1,8 @@
 import {Tool} from "./Tool.js";
 
 export class Rect extends Tool {
-    constructor(canvas) {
-        super(canvas);
+    constructor(canvas, socket, id) {
+        super(canvas, socket, id);
         this.listen()
     }
 
@@ -14,6 +14,22 @@ export class Rect extends Tool {
 
     mouseUpHandler(e) {
         this.mouseDown = false
+
+        /* отправляем данные только в момент отпускания
+        * this.ctx генерируется в Tool если чо
+        *  */
+        this.socket.send(JSON.stringify({
+            method: "draw",
+            id: this.id,
+            figure: {
+                type: "rect",
+                x: this.startX,
+                y: this.startY,
+                width: this.width,
+                height: this.height,
+                color: this.ctx.fillStyle
+            },
+        }))
     }
 
     mouseDownHandler(e) {
@@ -29,10 +45,10 @@ export class Rect extends Tool {
         if (this.mouseDown) {
             const currentX = e.pageX - e.target.offsetLeft
             const currentY = e.pageY - e.target.offsetTop
-            const width = currentX - this.startX
-            const height = currentY - this.startY
+            this.width = currentX - this.startX
+            this.height = currentY - this.startY
 
-            this.draw(this.startX, this.startY, width, height)
+            this.draw(this.startX, this.startY, this.width, this.height)
         }
     }
 
@@ -48,5 +64,13 @@ export class Rect extends Tool {
             this.ctx.fill() // залить
             this.ctx.stroke() // обвести
         }
+    }
+
+    static staticDraw(ctx, x, y, w, h, color) {
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.rect(x, y, w, h)
+        ctx.fill() // залить
+        ctx.stroke() // обвести
     }
 }

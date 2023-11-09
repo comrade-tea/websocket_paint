@@ -10,13 +10,14 @@ app.ws("/", (ws, req) => {
     // ws.send("hello from socket")
     ws.on("message", (msg) => {
         msg = JSON.parse(msg)
-        console.log("----", msg.username)
+        // console.log("----", msg.username)
 
         switch (msg.method) {
             case "connection":
                 connectionHandler(ws, msg)
                 break;
             case "draw":
+                BroadcastConnection(ws, msg)
                 break;
         }
     })
@@ -33,7 +34,7 @@ const BroadcastConnection = (ws, msg) => {
     /* aWss.clients - содержит все открытые вебсокеты */
     aWss.clients.forEach(client => {
         if (client.id === msg.id) {
-            client.send(`user ${msg.username} was connected, id is: ${msg.id}`)
+            client.send(JSON.stringify(msg))
         }
     })
 }

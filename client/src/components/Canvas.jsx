@@ -6,9 +6,9 @@ import {toolState} from "../store/toolState.js"
 import {Brush} from "../tools/Brush.js"
 import {Button, Modal} from "react-bootstrap"
 import {useParams} from "react-router-dom"
+import {Rect} from "../tools/Rect.js"
 
 /* observer - mobx обертка, при изменении в стейтах mobx(вроде всех)
-*  триггерит перерисовку внутренностей
 * */
 export const Canvas = observer(() => {
     const canvasRef = useRef(null);
@@ -18,27 +18,67 @@ export const Canvas = observer(() => {
 
     useEffect(() => {
         canvasState.setCanvas(canvasRef.current)
-        toolState.setTool(new Brush(canvasRef.current))
+        // toolState.setTool(new Brush(canvasRef.current)) /* move tool state to websocket declaration  => */
     }, []);
 
     useEffect(() => {
         /* after assigning a username, establish a connection */
         if (canvasState.username) {
             const socket = new WebSocket("ws://localhost:5000/")
+
+            canvasState.setSocket(socket)
+            canvasState.setSessionId(params.id)
+            toolState.setTool(new Brush(canvasRef.current, canvasState.socket, canvasState.sessionId))
+            
+            /* send data  when socket is open */
             socket.onopen = () => {
-                // console.log("----", "connection established")
                 socket.send(JSON.stringify({
                     id: params.id,
                     username: canvasState.username,
                     method: "connection",
                 }))
             }
-
+            
+            /* response from server */
             socket.onmessage = (e) => {
-                console.log(`server response: ${e.data}`)
+                const msg = JSON.parse(e.data)
+                // console.log("--wtf?--", msg)
+
+                switch (msg.method) {
+                    case "connection": {
+                        console.log(`user ${msg.username} was connected`)
+                        break
+                    }
+                    case "draw": {
+                        drawHandler(msg)
+                        break
+                    }
+                }
             }
         }
-    }, [canvasState.username]);
+    }, [canvasState.username])
+
+    const drawHandler = (msg) => {
+        const figure = msg.figure
+        const ctx = canvasRef.current.getContext("2d")
+        console.log("----", ctx)
+        
+        switch (figure.type) {
+            case "brush": {
+                Brush.draw(ctx, figure.x, figure.y)
+                break
+            }
+            case "rect": {
+                Rect.staticDraw(ctx, figure.x, figure.y, figure.width, figure.height, figure.color)
+                break
+            }
+            case "finish": {
+                ctx.beginPath() /* прервать рисовалку, начинать новый путь */
+                break
+            }
+        }
+    }
+
 
     const mouseDownHandler = () => {
         canvasState.pushToUndo(canvasRef.current.toDataURL()) /* save canvas state for undo history */
