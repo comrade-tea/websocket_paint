@@ -11,4 +11,7 @@ Currently, two official plugins are available:
 ### steps:
 - setup react canvas with tools and input
 - setup express.js + express-ws 
-- generate for each session unique url
+- generate for each session unique url (by redirecting from home page with react-routing-dom)
+- start conversation between client and server with websocket
+- server should listen to "message" from client and notify other clients with `WSserver.getWss`
+-  

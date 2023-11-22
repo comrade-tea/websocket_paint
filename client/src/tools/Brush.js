@@ -1,4 +1,5 @@
 import {Tool} from "./Tool.js"
+import {toolState} from "../store/toolState.js"
 
 export class Brush extends Tool {
     constructor(canvas, socket, id) {
@@ -44,14 +45,21 @@ export class Brush extends Tool {
                     type: "brush",
                     x: e.pageX - e.target.offsetLeft,
                     y: e.pageY - e.target.offsetTop,
+                    strokeStyle: this.ctx.strokeStyle,
+                    lineWidth: this.ctx.lineWidth,
                 },
             }))
         }
     }
 
-    static draw(ctx, x, y) {
+    static draw({ctx, x, y, strokeStyle, lineWidth}) {
+        ctx.strokeStyle = strokeStyle
+        ctx.lineWidth = lineWidth
+        
         ctx.lineTo(x, y)
         ctx.stroke()
-        // console.log("----", "draw brush")
+        
+        ctx.strokeStyle = toolState.strokeStyle
+        ctx.lineWidth = toolState.lineWidth
     }
 }

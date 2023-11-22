@@ -1,4 +1,5 @@
 import {Tool} from "./Tool.js";
+import {toolState} from "../store/toolState.js"
 
 export class Rect extends Tool {
     constructor(canvas, socket, id) {
@@ -16,7 +17,7 @@ export class Rect extends Tool {
         this.mouseDown = false
 
         /* отправляем данные только в момент отпускания
-        * this.ctx генерируется в Tool если чо
+        * this.ctx генерируется в Tool если чо    
         *  */
         this.socket.send(JSON.stringify({
             method: "draw",
@@ -27,7 +28,9 @@ export class Rect extends Tool {
                 y: this.startY,
                 width: this.width,
                 height: this.height,
-                color: this.ctx.fillStyle
+                fillStyle: this.ctx.fillStyle,
+                strokeStyle: this.ctx.strokeStyle,
+                lineWidth: this.ctx.lineWidth
             },
         }))
     }
@@ -52,6 +55,7 @@ export class Rect extends Tool {
         }
     }
 
+    /* clientside drawing */
     draw(x, y, w, h) {
         const img = new Image()
         img.src = this.saved
@@ -66,11 +70,21 @@ export class Rect extends Tool {
         }
     }
 
-    static staticDraw(ctx, x, y, w, h, color) {
-        ctx.fillStyle = color
+    /* static method draws figures from server */
+    static staticDraw({ctx, x, y, width, height, fillStyle, lineWidth, strokeStyle}) {
+        // console.table(x, y, width, height, fillStyle, lineWidth, strokeStyle)
+        ctx.strokeStyle = strokeStyle
+        ctx.lineWidth = lineWidth
+        ctx.fillStyle = fillStyle
+
         ctx.beginPath()
-        ctx.rect(x, y, w, h)
-        ctx.fill() // залить
-        ctx.stroke() // обвести
+        ctx.rect(x, y, width, height)
+        ctx.fill()
+        ctx.stroke()
+
+        /* return client's tool ctx values */
+        ctx.strokeStyle = toolState.strokeStyle
+        ctx.lineWidth = toolState.lineWidth
+        ctx.fillStyle = toolState.fillStyle
     }
 }

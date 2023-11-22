@@ -7,6 +7,10 @@ import {Brush} from "../tools/Brush.js"
 import {Button, Modal} from "react-bootstrap"
 import {useParams} from "react-router-dom"
 import {Rect} from "../tools/Rect.js"
+import axios from "axios"
+import {Eraser} from "../tools/Eraser.js"
+import {Line} from "../tools/Line.js"
+import {Circle} from "../tools/Circle.js"
 
 /* observer - mobx обертка, при изменении в стейтах mobx(вроде всех)
 * */
@@ -19,6 +23,18 @@ export const Canvas = observer(() => {
     useEffect(() => {
         canvasState.setCanvas(canvasRef.current)
         // toolState.setTool(new Brush(canvasRef.current)) /* move tool state to websocket declaration  => */
+
+        axios.get(`http://localhost:5000/image?id=${params.id}`)
+            .then(response => {
+                const img = new Image()
+                img.src = response.data
+                img.onload = () => {
+                    // console.log("----", this)
+                    const ctx = canvasRef.current.getContext("2d")
+                    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height) // clear canvas
+                    ctx.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height) // return "saved" canvass
+                }
+            })
     }, []);
 
     useEffect(() => {
@@ -29,7 +45,7 @@ export const Canvas = observer(() => {
             canvasState.setSocket(socket)
             canvasState.setSessionId(params.id)
             toolState.setTool(new Brush(canvasRef.current, canvasState.socket, canvasState.sessionId))
-            
+
             /* send data  when socket is open */
             socket.onopen = () => {
                 socket.send(JSON.stringify({
@@ -38,7 +54,7 @@ export const Canvas = observer(() => {
                     method: "connection",
                 }))
             }
-            
+
             /* response from server */
             socket.onmessage = (e) => {
                 const msg = JSON.parse(e.data)
@@ -61,17 +77,37 @@ export const Canvas = observer(() => {
     const drawHandler = (msg) => {
         const figure = msg.figure
         const ctx = canvasRef.current.getContext("2d")
-        console.log("----", ctx)
-        
+
         switch (figure.type) {
             case "brush": {
-                Brush.draw(ctx, figure.x, figure.y)
+                const {x, y, strokeStyle, lineWidth} = figure
+                Brush.draw({ctx, x, y, strokeStyle, lineWidth})
                 break
             }
+
             case "rect": {
-                Rect.staticDraw(ctx, figure.x, figure.y, figure.width, figure.height, figure.color)
+                const {x, y, width, height, fillStyle, lineWidth, strokeStyle} = figure
+                Rect.staticDraw({ctx, x, y, width, height, fillStyle, lineWidth, strokeStyle})
                 break
             }
+                
+            case "circle": {
+                const {x, y, size, fillStyle, lineWidth, strokeStyle} = figure
+                Circle.staticDraw({ctx, x, y, size, fillStyle, lineWidth, strokeStyle})
+                break
+            }
+            
+            case "eraser": {
+                Eraser.draw(ctx, figure.x, figure.y, figure.color)
+                break
+            }
+            
+            case "line": {
+                const {startPoint, x, y, strokeStyle, lineWidth} = figure
+                Line.staticDraw({ctx, startPoint, x, y, strokeStyle, lineWidth})
+                break
+            }
+
             case "finish": {
                 ctx.beginPath() /* прервать рисовалку, начинать новый путь */
                 break
@@ -82,6 +118,9 @@ export const Canvas = observer(() => {
 
     const mouseDownHandler = () => {
         canvasState.pushToUndo(canvasRef.current.toDataURL()) /* save canvas state for undo history */
+        axios.post(`http://localhost:5000/image?id=${params.id}`,
+            {img: canvasRef.current.toDataURL()})
+            .then(response => console.log(response.data))
     }
 
     const connectHandler = () => {

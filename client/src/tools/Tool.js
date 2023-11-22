@@ -1,6 +1,6 @@
 export class Tool {
     constructor(canvas, socket, id) {
-        this.canvas = canvas
+        this.canvas = canvas 
         this.socket = socket
         this.id = id
         this.ctx = canvas.getContext("2d") // context - object for manipulations
