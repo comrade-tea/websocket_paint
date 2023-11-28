@@ -2,7 +2,48 @@
 @import "variables";
 
 .app {
-  max-height: 100vh;
-  width: 100w;
-  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
+  background: #fbfbfb url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAElBMVEUAAAD8/vz08vT09vT8+vzs7uxH16TeAAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAsFJREFUOI0dVNl5YCsItgXFFMCSAlhSAEgKmJn0X8sl9+18oMi/ncXYeuJRAIH/JRauA2m5DO8VFM8dfU2tMvz85bOuP9lCpBhyOm74ZUDMhQ/wn1hPF5Q1n0W8erDKmBr1bkKS9og48s1lK1xjn96Mcg/jVgEGk1hTLDd3cAJgSbo/kCG9ovwAIbIK1d33NLParuVeXu/VeVgq+Ng+Q2lwhEY/+pC4P+e1vbe1FNEXzX66ew7LMb1hHqly3/Kqdw32oMPnMN911ZLXrsB37z50jEOl9OdOE5elPC/MQKPn1Kr0yrwXYFwMlz51kooqDPLBjGICUzwaUk8Hs/U91bQuNQhEAR/kfJ+8j8PZuVL2DrvZqR7CfcsA7tUFgxoT+zb/DuQNQ6MQrMb70bmP+cNB8wm5C4bTkZbhPrmJ87YIHxOsX3bNjryDbeRQ+6a0QueLlYVldVzdL7mx0r593l0ybxaABMY/710flIdPxMKTswXifmac196+MZURKrbazP0SheDBMnXg2otmV837B+2AxTBVPu/1XlbiP1JzBmNzD52bRvheXPrEoKCe2zk0tm05xOsMTf6HVa8dZ9LI1yx6lv7ql4w2cn9/gBRtokBYLNti57R/kh/2seA4nuudII/2GqNGZsokwvbg+PXV+BzsjNrDeJ2r4/pYv/6+CkRvyv9bOLnesMsSfyGrL09wRsuQ3ZZ61wj3KlWRrJ3/XRvNtWq8WzHTQQfut91yGLOzHVqd52uouunp5GNW9iSt7+XHMeAwt06DTLl6+LaF0RNYzTBxmULJnhhqL83i+0kTpA2oDTscEm4t+4oz9Pp+m+zv+8WDOLeXv5k1Zn5jHIK2+uSiAzMK/+iu33SZEXtDv8CmnKjlHreD9uPv8cIEhfDOVsXbqyViU78P+Gp/X4Rj0SDh+VlczInSbJwTI06r/wDC7cTmGTBoBgAAAABJRU5ErkJggg==);
+  //max-height: 100vh;
+  //height: 100vh;
+  &__inner {
+    flex: 1;
+  }
+}
+
+.footer {
+  width: 100%;
+  height: $toolbar-height;
+  background: #000;
+  color: #fff;
+}
+
+ol, ul {
+  list-style-position: inside;
+  padding-left: 0;
+}
+
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #000000 #bababa;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(186, 186, 186, 0.2);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #777777;
+  border-radius: 10px;
+  //border: 3px solid #ffffff;
 }

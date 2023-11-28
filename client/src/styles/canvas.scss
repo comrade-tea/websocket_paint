@@ -1,13 +1,14 @@
 @import "variables";
 
 .canvas-wrap {
-  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  
+  padding-top: $toolbar-height * 2;
+  height: calc(100vh - (#{$toolbar-height}));
+
   canvas {
-    border: 1px dotted grey;
     background: white;
+    border: 2px dotted grey;
   }
 }

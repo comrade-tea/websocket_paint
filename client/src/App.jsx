@@ -4,15 +4,19 @@ import {SettingBar} from "./components/SettingBar.jsx";
 import {Toolbar} from "./components/Toolbar.jsx";
 import {Canvas} from "./components/Canvas.jsx";
 import {Chat} from "./components/Chat/Chat.jsx"
+import {Footer} from "./components/Footer.jsx"
 
 const App = () => {
     return (
         <div className="app">
-            <SettingBar/>
-            <Toolbar/>
-            <Canvas/>
-            
-            {/*<Chat/>*/}
+            <div className="app__inner">
+                <SettingBar/>
+                <Toolbar/>
+                <Canvas/>
+            </div>
+
+            <Chat/>
+            <Footer/>
         </div>
     )
 }

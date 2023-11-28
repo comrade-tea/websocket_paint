@@ -1,35 +1,37 @@
 import "../styles/toolbar.scss"
 import {observer} from "mobx-react-lite";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {canvasState} from "../store/canvasState.js";
 import {toolState} from "../store/toolState.js"
 import {Brush} from "../tools/Brush.js"
 import {Button, Modal} from "react-bootstrap"
 import {useParams} from "react-router-dom"
 import {Rect} from "../tools/Rect.js"
-import axios from "axios"
 import {Eraser} from "../tools/Eraser.js"
 import {Line} from "../tools/Line.js"
 import {Circle} from "../tools/Circle.js"
+import {axiosInstance, socketURL} from "../utils/utils.js"
+import {socketState} from "../store/socketState.js"
 
 /* observer - mobx обертка, при изменении в стейтах mobx(вроде всех)
 * */
 export const Canvas = observer(() => {
     const canvasRef = useRef(null);
-    const usernameRef = useRef(null);
+    const [nickname, setNickname] = useState("")
+
     const [modal, setModal] = useState(true);
+    const [invalidNickname, setInvalidNickname] = useState(null)
+
     const params = useParams()
 
     useEffect(() => {
         canvasState.setCanvas(canvasRef.current)
-        // toolState.setTool(new Brush(canvasRef.current)) /* move tool state to websocket declaration  => */
 
-        axios.get(`http://localhost:5000/image?id=${params.id}`)
+        axiosInstance.get(`/image?id=${params.id}`)
             .then(response => {
                 const img = new Image()
                 img.src = response.data
                 img.onload = () => {
-                    // console.log("----", this)
                     const ctx = canvasRef.current.getContext("2d")
                     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height) // clear canvas
                     ctx.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height) // return "saved" canvass
@@ -38,41 +40,60 @@ export const Canvas = observer(() => {
     }, []);
 
     useEffect(() => {
-        /* after assigning a username, establish a connection */
+        /* after assigning a nickname, establish a connection */
         if (canvasState.username) {
-            const socket = new WebSocket("ws://localhost:5000/")
-
-            canvasState.setSocket(socket)
+            canvasState.setSocket(socketState.socket)
             canvasState.setSessionId(params.id)
             toolState.setTool(new Brush(canvasRef.current, canvasState.socket, canvasState.sessionId))
 
-            /* send data  when socket is open */
-            socket.onopen = () => {
-                socket.send(JSON.stringify({
-                    id: params.id,
-                    username: canvasState.username,
-                    method: "connection",
-                }))
+            if (socketState.socket.readyState === socketState.socket.OPEN) {
+                socketState.socket.send(
+                    JSON.stringify({
+                        method: "connection",
+                        id: params.id,
+                        username: canvasState.username,
+                    }))
+            } else {
+                socketState.addOnOpenHandler(() => {
+                    // socketState.socket.send(
+                    //     JSON.stringify({
+                    //         method: "connection",
+                    //         id: params.id,
+                    //         nickname: canvasState.nickname,
+                    //     }))
+                })
+
             }
 
             /* response from server */
-            socket.onmessage = (e) => {
-                const msg = JSON.parse(e.data)
-                // console.log("--wtf?--", msg)
+            socketState.addOnMessageHandler((e) => {
+                    const msg = JSON.parse(e.data)
 
-                switch (msg.method) {
-                    case "connection": {
-                        console.log(`user ${msg.username} was connected`)
-                        break
+                    switch (msg.method) {
+                        case "connection": {
+                            console.log(`user ${msg.username} was connected`)
+                            break
+                        }
+                        case "draw": {
+                            drawHandler(msg)
+                            break
+                        }
                     }
-                    case "draw": {
-                        drawHandler(msg)
-                        break
-                    }
-                }
-            }
+                },
+            )
         }
     }, [canvasState.username])
+
+    useEffect(() => {
+        if (nickname.length > 1) {
+            setInvalidNickname(false)
+        }
+    }, [nickname]);
+
+    const onNameChange = useCallback((event) => {
+        setNickname(event.target.value)
+    }, [])
+
 
     const drawHandler = (msg) => {
         const figure = msg.figure
@@ -90,18 +111,18 @@ export const Canvas = observer(() => {
                 Rect.staticDraw({ctx, x, y, width, height, fillStyle, lineWidth, strokeStyle})
                 break
             }
-                
+
             case "circle": {
                 const {x, y, size, fillStyle, lineWidth, strokeStyle} = figure
                 Circle.staticDraw({ctx, x, y, size, fillStyle, lineWidth, strokeStyle})
                 break
             }
-            
+
             case "eraser": {
                 Eraser.draw(ctx, figure.x, figure.y, figure.color)
                 break
             }
-            
+
             case "line": {
                 const {startPoint, x, y, strokeStyle, lineWidth} = figure
                 Line.staticDraw({ctx, startPoint, x, y, strokeStyle, lineWidth})
@@ -118,15 +139,19 @@ export const Canvas = observer(() => {
 
     const mouseDownHandler = () => {
         canvasState.pushToUndo(canvasRef.current.toDataURL()) /* save canvas state for undo history */
-        axios.post(`http://localhost:5000/image?id=${params.id}`,
+        console.log("----", params.id)
+        axiosInstance.post(`/image?id=${params.id}`,
             {img: canvasRef.current.toDataURL()})
             .then(response => console.log(response.data))
     }
 
     const connectHandler = () => {
-        // есть доступ напрямую к данным
-        canvasState.setUsername(usernameRef.current.value)
-        setModal(false)
+        if (nickname.length > 1) {
+            canvasState.setUsername(nickname)
+            setModal(false)
+        } else {
+            setInvalidNickname(true)
+        }
     }
 
     return (
@@ -138,13 +163,17 @@ export const Canvas = observer(() => {
                 />
             </div>
 
-            <Modal show={modal} onHide={() => {
-            }}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Enter your name</Modal.Title>
+            <Modal show={modal}>
+                <Modal.Header>
+                    <Modal.Title>Enter your nickname</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <input className="form-control" ref={usernameRef} type="text"/>
+                    <input className={`form-control ${invalidNickname ? "is-invalid" : ""}`}
+                           type="text"
+                           placeholder="At least 2 symbols"
+                           onChange={onNameChange}
+                           value={nickname}
+                    />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={connectHandler}>Sign in</Button>
