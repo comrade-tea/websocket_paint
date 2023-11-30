@@ -10,8 +10,8 @@ const App = () => {
     return (
         <div className="app">
             <div className="app__inner">
-                <SettingBar/>
                 <Toolbar/>
+                <SettingBar/>
                 <Canvas/>
             </div>
 

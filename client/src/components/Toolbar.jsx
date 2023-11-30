@@ -36,6 +36,7 @@ export const Toolbar = observer(() => {
     return (
         <div className="toolbar px-4">
             <div className="d-flex align-items-center">
+                <div className="me-2">Instruments:</div>
                 <ButtonGroup>
                     <Button variant={getButtonTheme(Brush)}
                             onClick={() => toolState.setTool(new Brush(canvas, socket, sessionId))} title="Brush"

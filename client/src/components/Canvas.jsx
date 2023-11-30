@@ -139,13 +139,14 @@ export const Canvas = observer(() => {
 
     const mouseDownHandler = () => {
         canvasState.pushToUndo(canvasRef.current.toDataURL()) /* save canvas state for undo history */
-        console.log("----", params.id)
-        axiosInstance.post(`/image?id=${params.id}`,
-            {img: canvasRef.current.toDataURL()})
-            .then(response => console.log(response.data))
+        axiosInstance
+            .post(`/image?id=${params.id}`, {img: canvasRef.current.toDataURL()})
+            // .then(response => console.log(response.data))
     }
 
-    const connectHandler = () => {
+    const connectHandler = (e) => {
+        e.preventDefault()
+        
         if (nickname.length > 1) {
             canvasState.setUsername(nickname)
             setModal(false)
@@ -168,16 +169,16 @@ export const Canvas = observer(() => {
                     <Modal.Title>Enter your nickname</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <input className={`form-control ${invalidNickname ? "is-invalid" : ""}`}
-                           type="text"
-                           placeholder="At least 2 symbols"
-                           onChange={onNameChange}
-                           value={nickname}
-                    />
+                    <form className="input-group" onSubmit={connectHandler}>
+                        <input className={`form-control ${invalidNickname ? "is-invalid" : ""}`}
+                               type="text"
+                               placeholder="At least 2 symbols"
+                               onChange={onNameChange}
+                               value={nickname}
+                        />
+                        <Button variant="primary" type="submit">Sign in</Button>
+                    </form>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary" onClick={connectHandler}>Sign in</Button>
-                </Modal.Footer>
             </Modal>
         </>
     )

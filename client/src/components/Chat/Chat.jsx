@@ -18,7 +18,7 @@ export const Chat = observer(() => {
     const notifications = messages.length - messagesMask
     
     useEffect(() => {
-        /* scro down on new message/toggle */
+        /* scroll-down on new message/toggle */
         messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight 
         
         if (chatIsActive) {
@@ -37,8 +37,8 @@ export const Chat = observer(() => {
         if (socketState.socket) {
             socketState.addOnMessageHandler((e) => {
                 const msg = JSON.parse(e.data)
-                console.log("----", msg)
-
+                // console.log("----", msg)
+                
                 switch (msg.method) {
                     case "connection": {
                         setUsers(msg.users)
@@ -58,7 +58,7 @@ export const Chat = observer(() => {
             })
         }
     }, [socketState.socket])
-
+    
 
     const onFormSubmit = (e) => {
         e.preventDefault()
