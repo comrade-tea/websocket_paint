@@ -36,7 +36,7 @@ export const Toolbar = observer(() => {
     return (
         <div className="toolbar px-4">
             <div className="d-flex align-items-center">
-                <div className="me-2">Instruments:</div>
+                <div className="fw-semibold me-2">Instruments:</div>
                 <ButtonGroup>
                     <Button variant={getButtonTheme(Brush)}
                             onClick={() => toolState.setTool(new Brush(canvas, socket, sessionId))} title="Brush"
@@ -52,14 +52,14 @@ export const Toolbar = observer(() => {
                         <GiCircle size={24}/>
                     </Button>
                     <Button
-                        onClick={() => toolState.setTool(new Eraser(canvas, socket, sessionId))} title="Eraser"
-                        variant={getButtonTheme(Eraser)}>
-                        <FaEraser size={24}/>
-                    </Button>
-                    <Button
                         onClick={() => toolState.setTool(new Line(canvas, socket, sessionId))} title="Line"
                         variant={getButtonTheme(Line)}>
                         <HiOutlineMinus size={24}/>
+                    </Button>
+                    <Button
+                        onClick={() => toolState.setTool(new Eraser(canvas, socket, sessionId))} title="Eraser"
+                        variant={getButtonTheme(Eraser)}>
+                        <FaEraser size={24}/>
                     </Button>
                 </ButtonGroup>
 

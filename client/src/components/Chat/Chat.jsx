@@ -15,7 +15,8 @@ export const Chat = observer(() => {
     const [messages, setMessages] = useState([])
     const [messagesMask, setMessagesMask] = useState(0)
     
-    const notifications = messages.length - messagesMask
+    // const notifications = messages.length - messagesMask
+    const notifications = 10
     
     useEffect(() => {
         /* scroll-down on new message/toggle */
@@ -37,10 +38,11 @@ export const Chat = observer(() => {
         if (socketState.socket) {
             socketState.addOnMessageHandler((e) => {
                 const msg = JSON.parse(e.data)
-                // console.log("----", msg)
+                console.log("----", msg)
                 
                 switch (msg.method) {
                     case "connection": {
+                        console.log("----", msg)
                         setUsers(msg.users)
                         setMessages(msg.messages)
                         break
@@ -68,9 +70,9 @@ export const Chat = observer(() => {
         }
 
         socketState.sendMessage(JSON.stringify({
-            id: canvasState.sessionId,
             method: "chat",
             message: {
+                id: canvasState.sessionId,
                 key: uuidv4(),
                 username: canvasState.username,
                 text: e.target.text.value,
@@ -122,8 +124,8 @@ export const Chat = observer(() => {
                         
                         <ul className="pe-1" style={{fontSize: 12}}>
                             {users.length > 0
-                                ? users.map(user => (<li className="text-truncate" key={user.key}>{user.username}</li>))
-                                : <em>nobody here</em>
+                                ? users.map(user => (<li className="text-truncate" key={user.id}>{user.username}</li>))
+                                : <em>Nobody's here</em>
                             }
                         </ul>
                     </div>

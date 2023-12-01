@@ -69,9 +69,6 @@ export const Home = () => {
             </div>
             
             <Footer/>
-            <div className="todo">
-                
-            </div>
         </div>
     )
 }

@@ -1,17 +1,6 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import "variables";
 
-.todo {
-  position: fixed;
-  bottom: $toolbar-height;
-  left: 0;
-  background: dimgray;
-  color: #fff;
-  z-index: 1;
-  width: 300px;
-  padding: 10px;
-}
-
 .app {
   display: flex;
   flex-direction: column;

@@ -36,31 +36,37 @@ export const SettingBar = observer(() => {
     return (
         <>
             <div className="settingbar px-4">
-                <div className="d-flex gap-3 align-items-baseline w-100">
-                    <div>
-                        <label className="me-2" htmlFor="line-width">Stroke width:</label>
+                <div className="row gx-3 align-items-baseline w-100">
+                    <div className="col-auto d-flex align-items-center">
+                        <label className="fw-semibold me-2 text-nowrap" htmlFor="line-width">Stroke width:</label>
                         <input id="line-width"
+                               className="form-control"
                                onChange={strokeWidthHandle}
                                type="number" min={1} max={50} value={toolState.lineWidth}/>
                     </div>
 
                     {colorsAreChangable && (
-                        <div className="d-flex align-items-center">
-                            <label className="me-2" htmlFor="stroke-color">Stroke color:</label>
-                            <input id="stroke-color"
+                        <div className="col-auto d-flex align-items-center">
+                            <label className="fw-semibold me-2" htmlFor="stroke-color">Stroke color:</label>
+                            <input className="form-control form-control-color"
+                                   id="stroke-color"
                                    onChange={e => toolState.setStrokeColor(e.target.value)}
                                    type="color"/>
                         </div>
                     )}
 
                     {colorsAreChangable && (
-                        <div className="d-flex align-items-center">
-                            <label className="me-2" htmlFor="fill-color">Fill color:</label>
-                            <input id="fill-color" onChange={onFillChange} type="color"/>
+                        <div className="col-auto d-flex align-items-center">
+                            <label className="fw-semibold me-2" htmlFor="fill-color">Fill color:</label>
+                            <input className="form-control form-control-color"
+                                   id="fill-color"
+                                   onChange={onFillChange}
+                                   type="color"
+                            />
                         </div>
                     )}
 
-                    <div className="ms-auto">
+                    <div className="col-auto d-flex align-items-center ms-auto">
                         <Link className="btn btn-warning me-3" to={"/"}>
                             Return to main page
                         </Link>
