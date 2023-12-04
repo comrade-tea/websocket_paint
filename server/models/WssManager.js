@@ -29,27 +29,30 @@ module.exports = class WssManager {
     }
 
     removeUser(userId, roomId) {
-        const msg = {
+        this.rooms[roomId].users = this.rooms[roomId].users.filter(user => user.id !== userId)
+        
+        const payload = {
             method: "userHasLeft",
             id: roomId,
-            users: this.rooms[roomId].users.filter(user => user.id !== userId),
+            userId, 
+            users: this.rooms[roomId].users,
         }
 
-        this.BroadcastConnection(msg)
+        this.BroadcastConnection(payload)
     }
 
     getMessages(roomId) {
         return this.rooms[roomId].messages
     }
 
-    sendMessage(msg) {
-        console.log("--add message--", msg)
-        const roomId = msg.id
-        this.rooms[roomId].messages.push(new Message(msg))
+    sendMessage({method, message}) {
+        console.log("--add message--", message)
+        const roomId = message.id
+        this.rooms[roomId].messages.push(new Message(message))
 
         const payload = {
             id: roomId,
-            method: "chat",
+            method,
             messages: this.getMessages(roomId),
         }
 

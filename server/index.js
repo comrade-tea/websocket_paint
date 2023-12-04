@@ -77,7 +77,7 @@ wss.on("connection", ws => {
                 wssManager.addUser(new User(userId, msg.username), roomId)
                 break
             case "chat":
-                wssManager.sendMessage(msg.message)
+                wssManager.sendMessage(msg)
                 break
             case "draw":
                 wssManager.BroadcastConnection(msg)
@@ -87,7 +87,11 @@ wss.on("connection", ws => {
 
     /* send a message to other clients that this client has disconnected */
     ws.on("close", () => {
-        wssManager.removeUser(ws.userId, ws.id)
+        if (ws.userId && ws.id) {
+            wssManager.removeUser(ws.userId, ws.id)
+        } else {
+            console.warn("ws onClose: ", "no ws data")
+        }
     })
 })
 

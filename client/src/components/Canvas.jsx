@@ -70,10 +70,6 @@ export const Canvas = observer(() => {
                     const msg = JSON.parse(e.data)
 
                     switch (msg.method) {
-                        case "connection": {
-                            console.log(`user ${msg.username} was connected`)
-                            break
-                        }
                         case "draw": {
                             drawHandler(msg)
                             break

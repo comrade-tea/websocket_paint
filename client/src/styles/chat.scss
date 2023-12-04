@@ -1,0 +1,31 @@
+@import "variables";
+
+.chat {
+  position: absolute;
+  bottom: $toolbar-height;
+  right: 0;
+  width: 560px;
+  background: darkgray;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-top-left-radius: 0.25rem;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    background: blue;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+  }
+
+  &__body {
+    //flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    margin: 0px 4px;
+  }
+}
+

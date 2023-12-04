@@ -1,22 +1,36 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
-import $ from "./chat.module.scss"
+import "../../styles/chat.scss"
 import {socketState} from "../../store/socketState.js"
 import {canvasState} from "../../store/canvasState.js"
 import {observer} from "mobx-react-lite"
 import {v4 as uuidv4} from 'uuid';
-import {FaChevronUp, FaCross} from "react-icons/fa"
+import {FaChevronUp} from "react-icons/fa"
 import {FaX} from "react-icons/fa6"
+import {useAppContext} from "../../contexts/AppContext"
 
 export const Chat = observer(() => {
+    const {addEnterToast, addLeaveToast} = useAppContext()
     const messagesContainerRef = useRef(null)
     
     const [chatIsActive, setChatIsActive] = useState(true)
-    const [users, setUsers] = useState([])
     const [messages, setMessages] = useState([])
     const [messagesMask, setMessagesMask] = useState(0)
+    const notifications = messages.length - messagesMask
+
+    const [users, setUsers] = useState([])
+    const [usersPrevCount, setUsersPrevCount] = useState(0)
     
-    // const notifications = messages.length - messagesMask
-    const notifications = 10
+    
+    useEffect(() => {
+        if (users.length > usersPrevCount) {
+            addEnterToast({
+                id: uuidv4(),
+                username: users.at(-1)?.username
+            })
+        }
+
+        setUsersPrevCount(users.length)
+    }, [users]);
     
     useEffect(() => {
         /* scroll-down on new message/toggle */
@@ -36,13 +50,13 @@ export const Chat = observer(() => {
     useEffect(() => {
         /* after assigning a username, create a connection */
         if (socketState.socket) {
+            console.log("how many subscribes?")
             socketState.addOnMessageHandler((e) => {
                 const msg = JSON.parse(e.data)
                 console.log("----", msg)
                 
                 switch (msg.method) {
                     case "connection": {
-                        console.log("----", msg)
                         setUsers(msg.users)
                         setMessages(msg.messages)
                         break
@@ -54,15 +68,17 @@ export const Chat = observer(() => {
                     case "userHasLeft": {
                         console.log("----", "user has left", msg.users)
                         setUsers(msg.users)
+                        // addLeaveToast({username: msg.users.at(-1).username})
                         break
                     }
                 }
             })
         }
+        
     }, [socketState.socket])
     
 
-    const onFormSubmit = (e) => {
+    const onFormSubmit = useCallback((e) => {
         e.preventDefault()
 
         if (e.target.text.value.length === 0) {
@@ -79,15 +95,15 @@ export const Chat = observer(() => {
             },
         }))
         e.target.reset()
-    }
+    }, [])
 
-    const handleChatToggle = () => {
+    const handleChatToggle = useCallback(() => {
         setChatIsActive(!chatIsActive)
-    }
+    }, [chatIsActive])
     
     return (
-        <div className={$.chat}>
-            <div className={$.head}>
+        <div className="chat">
+            <div className="chat__head">
                 <div className="fs-5 fw-bold">Chat</div>
                 {messagesMask > 0 && notifications > 0 && <span className="badge rounded-pill text-bg-danger ms-3">{notifications}</span>}
                 
@@ -97,11 +113,11 @@ export const Chat = observer(() => {
                 </button>
             </div>
             
-            <div className={`${$.body} ${!chatIsActive ? "d-none" : ""}`}>
+            <div className={`chat__body ${!chatIsActive ? "d-none" : ""}`}>
                 <div className="row gx-0 flex-grow-1">
                     <div className="col-8">
                         <div className="p-2 pe-0 d-flex flex-column">
-                            <h5 className="pb-2 mb-0 border-bottom">Messages:</h5>
+                            <h6 className="pb-2 mb-0 border-bottom">Messages:</h6>
                             <ul ref={messagesContainerRef} className="list-unstyled overflow-auto flex-1 d-flex flex-column gap-1 mb-0 pe-2" style={{height: 300}}>
                                 {messages.length > 0
                                     ?
@@ -113,14 +129,14 @@ export const Chat = observer(() => {
                                             <span>{text}</span>
                                         </li>
                                     ))
-                                    : <em>The chat is empty</em>
+                                    : <em className="fs-6 mt-1 text-muted">The chat is empty</em>
                                 }
                             </ul>
                         </div>
                     </div>
                     
                     <div className="col-4 border-start border-4 py-2 ps-3">
-                        <h5 className="mb-2">Users:</h5>
+                        <h6 className="mb-2">Users:</h6>
                         
                         <ul className="pe-1" style={{fontSize: 12}}>
                             {users.length > 0
